@@ -1,0 +1,81 @@
+#Reading the csv file - Method1
+'''
+import csv
+import re
+i = 0
+results = []
+with open('test.csv') as inputfile:
+    for row in csv.reader(inputfile):
+        results.append(row)
+        i= i+1
+print(results[0],results[1], results[49]) #check if the csv file has been read or not
+'''
+
+#Reading the csv file - Method2
+import re
+import math
+import csv
+with open('test.csv', 'rb') as f:
+    reader = csv.reader(f)
+    list_comb = list(reader)
+
+#Removing special characters using replace (first using replace method because directly using re.sub method gives errors
+list_comb = [res[0].replace('.','') for res in list_comb]
+print(list_comb[0])
+
+
+#Removing special characters using regex
+for i in range(0,len(list_comb)):
+    list_comb[i] = re.sub(r'[\*\$-/\'",%0-9_?!:]','', list_comb[i]) #Replacing the special characters and numbers by spaces
+   # list_comb[i] = re.sub(r'\s+', ' ', list_comb[i]).strip() #Replacing multiple spaces by a single space
+
+# Just checking the output
+#print(list_comb[0]) 
+
+#Method to parse the strings
+def getWords(text):
+    return re.compile('\w+').findall(text)
+
+#Parsing the list
+for i in range(0,len(list_comb)):
+    list_comb[i] = getWords(list_comb[i]) #Breaking down each list element i.e. a string into individual words and again
+                                           #assigning the list of words obtained to the list element of list_comb
+
+#list_combo - It is a list of lists. The inner list inturn conatins a collection of strings.
+#list_of_words - It is a list of words.
+#word - Individual element of list_of_words
+#Level: High to low
+#list_combo > list_of_words > word
+#For example: 
+
+
+#It returns term frequency value of  a word
+def tf(word, list_of_words):
+    return series.count(word) / float(len(list_of_words)) #Type casting integer to float to get decimal numbers
+
+#It returns the number of words in a list/document 
+def list_conatining(word, list_combo):
+    return sum(1 for list_of_words in list_combo if word in list_of_words) #Using Generator expression 
+
+#It returns the inverse document frequency value of a word
+def idf(word, list_combo):
+    return math.log(len(list_combo) / (1 + list_containing(word, list_combo))) #Using math functions to calculate log of the ratio
+
+#Computing the tf-idf product by calling indiviadual methods
+def tfidf(word, list_of_words, list_combo):
+    return tf(word, list_of_words) * idf(word, list_combo)
+
+#Just checking if methods are working or not
+#score1 = tfidf(list_comb[0][4],list_comb[0], list_comb)
+
+
+#Storing the tf-idf score in dictionary stores
+for i, blob in enumerate(list_comb):
+    print("Top words in document {}".format(i + 1))
+    scores = {word: tfidf(word, list_comb[i], list_comb) for word in list_comb[i]}
+    sorted_words = sorted(scores.items(), key=lambda x: x[1], reverse=True)
+    for word, score in sorted_words[:3]:
+        print("\tWord: {}, TF-IDF: {}".format(word, round(score, 5)))
+
+
+
